@@ -28,6 +28,7 @@
 #include "speck.h"
 #include <assert.h>
 #include "minilzo.h"
+#include "random.h"
 
 #ifdef N2N_HAVE_AES
 #if USE_OPENSSL
@@ -764,10 +765,7 @@ static void send_register_super( n2n_edge_t * eee,
     cmn.flags = 0;
     memcpy( cmn.community, eee->community_name, N2N_COMMUNITY_SIZE );
 
-    for( idx=0; idx < N2N_COOKIE_SIZE; ++idx )
-    {
-        eee->last_cookie[idx] = rand() % 0xff;
-    }
+    random_bytes(NULL, eee->last_cookie, N2N_COOKIE_SIZE);
 
     memcpy( reg.cookie, eee->last_cookie, N2N_COOKIE_SIZE );
     reg.auth.scheme=0; /* No auth yet */
