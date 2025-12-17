@@ -691,8 +691,13 @@ static int process_udp( n2n_sn_t * sss,
 
         encode_REGISTER_SUPER_ACK( ackbuf, &encx, &cmn2, &ack );
 
-        sendto( sss->sock, ackbuf, encx, 0,
-                (struct sockaddr *)sender_sock, sizeof(struct sockaddr_in) );
+		      /* Select the correct socket based on the address family */
+		      volatile SOCKET send_sock = (sender_sock->sa_family == AF_INET6) ? sss->sock6 : sss->sock;
+	      	volatile socklen_t sock_len = (sender_sock->sa_family == AF_INET6) ?
+                           sizeof(struct sockaddr_in6) : sizeof(struct sockaddr_in);
+
+	      	sendto( send_sock, ackbuf, encx, 0,
+              	(struct sockaddr *)sender_sock, sock_len );
 
         traceEvent( TRACE_DEBUG, "Tx REGISTER_SUPER_ACK for %s %s",
                     macaddr_str( mac_buf, reg.edgeMac ),
